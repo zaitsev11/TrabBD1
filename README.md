@@ -1,6 +1,6 @@
-# Documentação do Diagrama de Relacionamento (DBML)
+# Diagrama Entidade-Relacionamento (DER).
 
-Este documento descreve o diagrama de relacionamento para o sistema de biblioteca, incluindo as tabelas e os relacionamentos com nomes definidos.
+Este documento descreve o diagrama de relacionamento para o sistema de biblioteca, incluindo as tabelas e os relacionamentos com nomes e cardinalidades definidos.
 
 ## Tabelas
 
@@ -43,27 +43,37 @@ Este documento descreve o diagrama de relacionamento para o sistema de bibliotec
 
 ## Relacionamentos
 
-Os relacionamentos entre as tabelas estão definidos da seguinte forma, com nomes personalizados para facilitar o entendimento:
-
 - **Pertence a**  
   - **Definição**: Relaciona `Livro.Categoria_ID` com `Categoria.ID`
-  - **Descrição**: Cada livro pertence a uma única categoria.
+  - **Cardinalidade**:  
+    - *Livro*: Muitos (N)  
+    - *Categoria*: Um (1)  
+  - **Descrição**: Cada livro pertence a uma única categoria, enquanto uma categoria pode possuir vários livros.
 
 - **Empresta**  
   - **Definição**: Relaciona `Emprestimo.Livro_ID` com `Livro.ID`
-  - **Descrição**: Cada empréstimo está associado a um livro.
+  - **Cardinalidade**:  
+    - *Emprestimo*: Muitos (N)  
+    - *Livro*: Um (1)  
+  - **Descrição**: Cada empréstimo está associado a um único livro, mas um livro pode ser emprestado diversas vezes.
 
 - **Realizado por**  
   - **Definição**: Relaciona `Emprestimo.Usuario_ID` com `Usuario.ID`
-  - **Descrição**: Cada empréstimo é realizado por um usuário.
+  - **Cardinalidade**:  
+    - *Emprestimo*: Muitos (N)  
+    - *Usuario*: Um (1)  
+  - **Descrição**: Cada empréstimo é realizado por um único usuário, porém um usuário pode realizar vários empréstimos.
 
 - **Gera**  
   - **Definição**: Relaciona `Multa.Emprestimo_ID` com `Emprestimo.ID`
+  - **Cardinalidade**:  
+    - *Multa*: Um (1)  
+    - *Emprestimo*: Um (1)  
   - **Descrição**: Cada multa é gerada por um único empréstimo (relação 1:1).
 
-## Código DBML
+## Código dbdiagram.io
 
-Você pode utilizar o código abaixo no [dbdiagram.io](https://dbdiagram.io/) para visualizar o diagrama com os relacionamentos nomeados:
+Utilize o código abaixo no [dbdiagram.io](https://dbdiagram.io/) para visualizar o diagrama com os relacionamentos, nomes e cardinalidades:
 
 ```dbml
 Table Categoria {
@@ -102,8 +112,16 @@ Table Multa {
   Status varchar(10) [default: 'Pendente'] // CHECK: Status IN ('Pendente', 'Pago', 'Cancelado')
 }
 
-// Relacionamentos com nomes
-Ref: Livro.Categoria_ID > Categoria.ID [name: "Pertence a"]
-Ref: Emprestimo.Livro_ID > Livro.ID [name: "Empresta"]
-Ref: Emprestimo.Usuario_ID > Usuario.ID [name: "Realizado por"]
-Ref: Multa.Emprestimo_ID > Emprestimo.ID [name: "Gera"]
+// Relacionamentos com nomes e cardinalidades
+
+// Livro (N) -> Categoria (1)
+Ref: Livro.Categoria_ID > Categoria.ID [name: "Pertence a (Livro: N, Categoria: 1)"]
+
+// Emprestimo (N) -> Livro (1)
+Ref: Emprestimo.Livro_ID > Livro.ID [name: "Empresta (Emprestimo: N, Livro: 1)"]
+
+// Emprestimo (N) -> Usuario (1)
+Ref: Emprestimo.Usuario_ID > Usuario.ID [name: "Realizado por (Emprestimo: N, Usuario: 1)"]
+
+// Multa (1) -> Emprestimo (1)
+Ref: Multa.Emprestimo_ID > Emprestimo.ID [name: "Gera (Multa: 1, Emprestimo: 1)"]
