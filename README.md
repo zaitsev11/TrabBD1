@@ -1,127 +1,167 @@
-# Diagrama Entidade-Relacionamento (DER).
+# Justificativa do Tema e Relevância
 
-Este documento descreve o diagrama de relacionamento para o sistema de biblioteca, incluindo as tabelas e os relacionamentos com nomes e cardinalidades definidos.
+## Tema: Sistema de Gerenciamento de Biblioteca
 
-## Tabelas
+A escolha do tema para a relevância prática e educacional. Um sistema informatizado para gerenciar os processos de uma biblioteca traz diversas vantagens, tais como:
 
-### Categoria
-- **ID**: `serial` (Chave Primária)
-- **Nome**: `varchar(50)` (Único e não nulo)
+- **Organização e Controle:** Automatiza o cadastro, atualização, remoção e consulta de livros, categorias, usuários, empréstimos e multas.
+- **Suporte à Tomada de Decisão:** Gera relatórios que auxiliam na identificação de empréstimos atrasados, agrupamento por categoria e a identificação dos livros mais populares.
+- **Desenvolvimento de Competências Técnicas:** Permite a prática de programação orientada a objetos utilizando tecnologias modernas como Python e PostgreSQL.
 
-### Livro
-- **ID**: `serial` (Chave Primária)
-- **Titulo**: `varchar(100)` (Não nulo)
-- **Autor**: `varchar(50)`
-- **ISBN**: `varchar(20)` (Único)
-- **Categoria_ID**: `int` (Não nulo)  
-  - Chave estrangeira referenciando `Categoria.ID`
-- **Ano_Publicacao**: `int`
+## Relevância
 
-### Usuario
-- **ID**: `serial` (Chave Primária)
-- **Nome**: `varchar(50)` (Não nulo)
-- **Email**: `varchar(50)` (Não nulo, Único)
-- **Telefone**: `varchar(15)`
+A implementação deste sistema não apenas oferece uma solução prática para o gerenciamento de bibliotecas, mas também serve como uma ferramenta de aprendizado para a aplicação de conceitos teóricos em um contexto real. O sistema possibilita a administração eficiente dos livros e dos empréstimos.
 
-### Emprestimo
-- **ID**: `serial` (Chave Primária)
-- **Livro_ID**: `int` (Não nulo)  
-  - Chave estrangeira referenciando `Livro.ID`
-- **Usuario_ID**: `int` (Não nulo)  
-  - Chave estrangeira referenciando `Usuario.ID`
-- **Data_Emprestimo**: `date` (Padrão: `CURRENT_DATE`)
-- **Data_Devolucao**: `date` (Não nulo)  
-  - *Restrição*: Deve ser maior que a `Data_Emprestimo`
+---
 
-### Multa
-- **ID**: `serial` (Chave Primária)
-- **Emprestimo_ID**: `int` (Não nulo, Único)  
-  - Chave estrangeira referenciando `Emprestimo.ID`
-- **Valor**: `decimal(10,2)` (Padrão: `0.0`)
-- **Status**: `varchar(10)` (Padrão: `'Pendente'`)  
-  - *Restrição*: Valores permitidos: `'Pendente'`, `'Pago'`, `'Cancelado'`
+# Documentação e Apresentação
 
-## Relacionamentos
+## Estrutura do Projeto
 
-- **Pertence a**  
-  - **Definição**: Relaciona `Livro.Categoria_ID` com `Categoria.ID`
-  - **Cardinalidade**:  
-    - *Livro*: Muitos (N)  
-    - *Categoria*: Um (1)  
-  - **Descrição**: Cada livro pertence a uma única categoria, enquanto uma categoria pode possuir vários livros.
+O projeto está organizado de forma modular, distribuído nos seguintes arquivos:
 
-- **Empresta**  
-  - **Definição**: Relaciona `Emprestimo.Livro_ID` com `Livro.ID`
-  - **Cardinalidade**:  
-    - *Emprestimo*: Muitos (N)  
-    - *Livro*: Um (1)  
-  - **Descrição**: Cada empréstimo está associado a um único livro, mas um livro pode ser emprestado diversas vezes.
+- **database_handler.py:**  
+  Responsável pela conexão com o banco de dados PostgreSQL. Configura o _search_path_ para o schema `biblioteca`, gerencia transações e executa as queries necessárias.
 
-- **Realizado por**  
-  - **Definição**: Relaciona `Emprestimo.Usuario_ID` com `Usuario.ID`
-  - **Cardinalidade**:  
-    - *Emprestimo*: Muitos (N)  
-    - *Usuario*: Um (1)  
-  - **Descrição**: Cada empréstimo é realizado por um único usuário, porém um usuário pode realizar vários empréstimos.
+- **models.py:**  
+  Define as classes que representam as entidades do sistema: `Livro`, `Usuario` e `Emprestimo`.
 
-- **Gera**  
-  - **Definição**: Relaciona `Multa.Emprestimo_ID` com `Emprestimo.ID`
-  - **Cardinalidade**:  
-    - *Multa*: Um (1)  
-    - *Emprestimo*: Um (1)  
-  - **Descrição**: Cada multa é gerada por um único empréstimo (relação 1:1).
+- **cadastros.py:**  
+  Contém as funções para os cadastros:
+  - **cadastrar_livro(db):** Recebe os dados do livro, verifica se a categoria existe e, se não existir, cadastra-a automaticamente. Em seguida, insere o livro.
+  - **cadastrar_usuario(db):** Recebe os dados do usuário e verifica se já existe um usuário com o mesmo email antes de inserir.
 
-## Código dbdiagram.io
+- **operacoes.py:**  
+  - **registrar_emprestimo(db):** Verifica se o livro e o usuário existem, e se a data de devolução é posterior à data atual, antes de registrar o empréstimo.
+  - **atualizar_livro(db) e excluir_livro(db):** Permitem atualizar ou excluir um livro, após validação da existência.
+  - **atualizar_usuario(db) e excluir_usuario(db):** Permitem atualizar ou excluir um usuário, com checagem prévia.
 
-Utilize o código abaixo no [dbdiagram.io](https://dbdiagram.io/) para visualizar o diagrama com os relacionamentos, nomes e cardinalidades:
+- **consultas.py:**  
+  Contém funções para consulta de dados:
+  - **listar_todos_livros(db):** Exibe todos os livros cadastrados.
+  - **buscar_livros_por_categoria(db):** Permite buscar livros por nome da categoria.
+  - **listar_emprestimos_usuario(db):** Exibe os empréstimos de um usuário específico.
+  - **listar_todos_usuarios(db):** Exibe todos os usuários cadastrados.
 
-```dbml
-Table Categoria {
-  ID serial [pk, increment]
-  Nome varchar(50) [not null, unique]
-}
+- **relatorios.py:**  
+  Agrupa funções que geram relatórios avançados:
+  - **relatorio_atrasados(db):** Lista os empréstimos com data de devolução anterior à data atual, mostrando os dias de atraso.
+  - **relatorio_emprestimos_por_categoria(db):** Agrupa os empréstimos por categoria e exibe o total de empréstimos por categoria.
+  - **relatorio_livros_mais_emprestados(db):** Lista os 10 livros com maior número de empréstimos.
 
-Table Livro {
-  ID serial [pk, increment]
-  Titulo varchar(100) [not null]
-  Autor varchar(50)
-  ISBN varchar(20) [unique]
-  Categoria_ID int [not null]
-  Ano_Publicacao int
-}
+- **main.py:**  
+  Exibe um menu interativo organizado por seções (Cadastros, Operações, Consultas e Relatórios) e chama as funções dos módulos correspondentes conforme a opção escolhida.
 
-Table Usuario {
-  ID serial [pk, increment]
-  Nome varchar(50) [not null]
-  Email varchar(50) [not null, unique]
-  Telefone varchar(15)
-}
+---
 
-Table Emprestimo {
-  ID serial [pk, increment]
-  Livro_ID int [not null]
-  Usuario_ID int [not null]
-  Data_Emprestimo date [default: `CURRENT_DATE`]
-  Data_Devolucao date [not null] // CHECK: Data_Devolucao > Data_Emprestimo
-}
+## Funcionalidades Implementadas
 
-Table Multa {
-  ID serial [pk, increment]
-  Emprestimo_ID int [not null, unique]
-  Valor decimal(10,2) [default: 0.0]
-  Status varchar(10) [default: 'Pendente'] // CHECK: Status IN ('Pendente', 'Pago', 'Cancelado')
-}
+- **Cadastros:**  
+  - **Livro:** Cadastro de livros solicitando título, autor, ISBN e nome da categoria. Se a categoria informada não existir, ela é cadastrada automaticamente.
+  - **Usuário:** Cadastro de usuários com nome, email e telefone. Verifica duplicidade de email.
 
-// Relacionamentos com nomes e cardinalidades
+- **Operações:**  
+  - **Registrar Empréstimo:** Registro de empréstimos com validação para garantir que o livro e o usuário existam e que a data de devolução seja posterior à data atual.
+  - **Atualizar/Excluir Livro:** Permite atualizar ou excluir um livro após validação de existência.
+  - **Atualizar/Excluir Usuário:** Permite atualizar ou excluir um usuário após validação de existência.
 
-// Livro (N) -> Categoria (1)
-Ref: Livro.Categoria_ID > Categoria.ID [name: "Pertence a (Livro: N, Categoria: 1)"]
+- **Consultas:**  
+  - **Listar Todos os Livros:** Exibe todos os livros cadastrados com detalhes.
+  - **Buscar Livros por Categoria:** Permite filtrar os livros por nome de categoria.
+  - **Listar Empréstimos de um Usuário:** Exibe os empréstimos realizados por um usuário específico.
+  - **Listar Todos os Usuários:** Exibe todos os usuários cadastrados.
 
-// Emprestimo (N) -> Livro (1)
-Ref: Emprestimo.Livro_ID > Livro.ID [name: "Empresta (Emprestimo: N, Livro: 1)"]
+- **Relatórios Avançados:**  
+  - **Livros Atrasados:** Lista os empréstimos em que a data de devolução é anterior à data atual, com indicação dos dias de atraso.
+  - **Empréstimos por Categoria:** Agrupa e exibe o total de empréstimos por categoria.
+  - **Livros Mais Emprestados:** Lista os 10 livros com maior número de empréstimos.
 
-// Emprestimo (N) -> Usuario (1)
-Ref: Emprestimo.Usuario_ID > Usuario.ID [name: "Realizado por (Emprestimo: N, Usuario: 1)"]
+---
 
-// Multa (1) -> Emprestimo (1)
-Ref: Multa.Emprestimo_ID > Emprestimo.ID [name: "Gera (Multa: 1, Emprestimo: 1)"]
+## Documentação do Código
+
+### 1. `database_handler.py`
+
+- **Objetivo:**  
+  Gerencia a conexão com o banco de dados PostgreSQL, define o _search_path_ para o schema `biblioteca` e executa as queries.
+  
+- **Destaques:**  
+  - Configuração do encoding para UTF-8.
+  - Método `execute_query(query, params)` que executa queries, commit, e retorna resultados para SELECT ou queries com RETURNING.
+  - Em caso de erro, faz rollback e exibe a mensagem de erro.
+
+### 2. `models.py`
+
+- **Objetivo:**  
+  Define as classes de dados que representam as entidades do sistema.
+  
+- **Classes:**  
+  - `Livro`: Armazena título, autor, ISBN, ID da categoria e ano de publicação.
+  - `Usuario`: Armazena nome, email e telefone.
+  - `Emprestimo`: Armazena o ID do livro, o ID do usuário e a data de devolução.
+
+### 3. `cadastros.py`
+
+- **Objetivo:**  
+  Contém funções para cadastrar novos registros.
+  
+- **Funções:**  
+  - `cadastrar_livro(db)`: Recebe os dados do livro e, se a categoria não existir, a cadastra automaticamente.
+  - `cadastrar_usuario(db)`: Recebe os dados do usuário e verifica duplicidade de email antes de inserir.
+
+### 4. `operacoes.py`
+
+- **Objetivo:**  
+  Contém funções para operações de negócio.
+  
+- **Funções:**  
+  - `registrar_emprestimo(db)`: Verifica se o livro e o usuário existem e se a data de devolução é posterior à data atual, então insere o empréstimo.
+  - `atualizar_livro(db)`: Permite atualizar os dados de um livro, após confirmar que o registro existe.
+  - `excluir_livro(db)`: Exclui um livro, verificando a existência do registro e solicitando confirmação.
+  - `atualizar_usuario(db)`: Atualiza os dados de um usuário, se ele existir.
+  - `excluir_usuario(db)`: Exclui um usuário, após validação e confirmação.
+
+### 5. `consultas.py`
+
+- **Objetivo:**  
+  Contém funções para consulta e listagem dos registros.
+  
+- **Funções:**  
+  - `listar_todos_livros(db)`: Lista todos os livros com detalhes.
+  - `buscar_livros_por_categoria(db)`: Permite buscar livros filtrados por nome da categoria.
+  - `listar_emprestimos_usuario(db)`: Lista os empréstimos de um usuário específico.
+  - `listar_todos_usuarios(db)`: Lista todos os usuários cadastrados.
+
+### 6. `relatorios.py`
+
+- **Objetivo:**  
+  Contém funções para gerar relatórios avançados.
+  
+- **Funções:**  
+  - `relatorio_atrasados(db)`: Lista os empréstimos atrasados, mostrando os dias de atraso.
+  - `relatorio_emprestimos_por_categoria(db)`: Agrupa e exibe o total de empréstimos por categoria.
+  - `relatorio_livros_mais_emprestados(db)`: Lista os 10 livros com maior número de empréstimos.
+
+### 7. `main.py`
+
+- **Objetivo:**  
+  Ponto de entrada do sistema. Exibe um menu interativo organizado em seções e chama as funções dos módulos conforme a opção escolhida.
+  
+- **Fluxo:**  
+  - Exibe o menu com opções para Cadastros, Operações, Consultas e Relatórios.
+  - Após cada operação, aguarda o usuário pressionar Enter para continuar.
+  - Ao sair, fecha a conexão com o banco.
+
+---
+
+## Instruções de Execução
+
+### Pré-Requisitos
+
+- **Banco de Dados:**  
+  PostgreSQL instalado e configurado. Execute o script SQL para criar e povoar as tabelas (certifique-se de que o schema `biblioteca` esteja criado).
+
+- **Ambiente Python:**  
+  Python 3.x instalado. Instale a biblioteca `psycopg2`:
+  ```bash
+  pip install psycopg2
