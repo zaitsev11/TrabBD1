@@ -6,10 +6,9 @@ class DatabaseHandler:
             host="localhost",
             database="postgres",
             user="postgres",
-            password="NovaSenha123!"
+            password="slowhand"
         )
         self.conn.autocommit = True
-        # Configura o encoding para UTF-8
         self.conn.set_client_encoding('UTF8')
         self.cursor = self.conn.cursor()
         # Define o schema "biblioteca"
@@ -19,10 +18,8 @@ class DatabaseHandler:
         try:
             self.cursor.execute(query, params or ())
             self.conn.commit()
-            # Se a query tem RETURNING, retorna o resultado (apenas uma linha)
             if "RETURNING" in query.upper():
                 return self.cursor.fetchone()
-            # Se for SELECT, retorna todas as linhas
             if query.strip().upper().startswith("SELECT"):
                 return self.cursor.fetchall()
         except Exception as e:

@@ -6,19 +6,16 @@ def cadastrar_livro(db):
     autor = input("Autor: ").strip()
     isbn = input("ISBN: ").strip()
 
-    # Solicita o nome da categoria
     categoria_nome = input("Nome da Categoria: ").strip()
     if not categoria_nome:
         print("O nome da categoria não pode estar vazio.")
         return
 
-    # Busca o ID da categoria, ignorando diferenças de maiúsculas/minúsculas
     query_category = "SELECT ID FROM Categoria WHERE LOWER(Nome) = LOWER(%s)"
     resultado = db.execute_query(query_category, (categoria_nome,))
     if resultado and len(resultado) > 0:
         categoria_id = resultado[0][0]
     else:
-        # Se não existir, insere a categoria automaticamente
         insert_category = "INSERT INTO Categoria (Nome) VALUES (%s) RETURNING ID"
         res = db.execute_query(insert_category, (categoria_nome,))
         if res:
@@ -49,7 +46,6 @@ def cadastrar_usuario(db):
     email = input("Email: ").strip()
     telefone = input("Telefone (opcional): ").strip() or None
 
-    # Verifica se já existe um usuário com o mesmo e-mail
     query_check = "SELECT ID FROM Usuario WHERE Email = %s"
     if db.execute_query(query_check, (email,)):
         print("Já existe um usuário com esse e-mail.")

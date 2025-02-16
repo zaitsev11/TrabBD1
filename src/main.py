@@ -74,10 +74,10 @@ def main():
             elif opcao == "14":
                 relatorio_livros_mais_emprestados(db)
             elif opcao == "0":
-                print("\n🚪 Sistema encerrado!")
+                print("\nSistema encerrado!")
                 break
             else:
-                print("\n❌ Opção inválida!")
+                print("\nOpção inválida!")
             input("\nPressione Enter para continuar...")
     finally:
         db.close()
