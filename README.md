@@ -159,9 +159,9 @@ O projeto está organizado de forma modular, distribuído nos seguintes arquivos
 ### Pré-Requisitos
 
 - **Banco de Dados:**  
-  PostgreSQL instalado e configurado. Execute o script SQL para criar e povoar as tabelas (certifique-se de que o schema `biblioteca` esteja criado).
+  PostgreSQL. Execute o script SQL para criar e povoar as tabelas certifique-se de que o schema biblioteca esteja criado.
 
 - **Ambiente Python:**  
-  Python 3.x instalado. Instale a biblioteca `psycopg2`:
+  Instale a biblioteca `psycopg2`:
   ```bash
   pip install psycopg2
