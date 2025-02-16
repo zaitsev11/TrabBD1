@@ -1,0 +1,40 @@
+Table Categoria {
+  ID int [pk, increment]
+  Nome varchar(50) [not null, unique]
+}
+
+Table Livro {
+  ID int [pk, increment]
+  Titulo varchar(100) [not null]
+  Autor varchar(50)
+  ISBN varchar(20) [unique]
+  Categoria_ID int [not null]
+  Ano_Publicacao int
+}
+
+Table Usuario {
+  ID int [pk, increment]
+  Nome varchar(50) [not null]
+  Email varchar(50) [not null, unique]
+  Telefone varchar(15)
+}
+
+Table Emprestimo {
+  ID int [pk, increment]
+  Livro_ID int [not null]
+  Usuario_ID int [not null]
+  Data_Emprestimo date [default: "CURRENT_DATE"]
+  Data_Devolucao date [not null]
+}
+
+Table Multa {
+  ID int [pk, increment]
+  Emprestimo_ID int [not null, unique]
+  Valor decimal(10,2) [default: 0.0]
+  Status varchar(10) [default: "Pendente"]
+}
+
+Ref: Categoria.ID < Livro.Categoria_ID  // 1:N
+Ref: Livro.ID < Emprestimo.Livro_ID    // 1:N
+Ref: Usuario.ID < Emprestimo.Usuario_ID  // 1:N
+Ref: Emprestimo.ID - Multa.Emprestimo_ID  // 1:1
